@@ -1,0 +1,51 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>io.github.palexdev.SessionManager</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>SessionManager</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="alessandro.parisi406@gmail.com"/>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
+    A simple plugin that allows to save the current session of the IDE. Open files
+    will be stored by default in the .idea folder (or any other location of your choice)
+    so that you can easily restore them on any machine.
+  ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.javafx</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+    </extensions>
+
+    <actions>
+        <group id="SessionManager.Menu" text="_Session Manager" description="Session manager">
+            <add-to-group group-id="EditorTabPopupMenu" relative-to-action="CopyReference" anchor="after"/>
+            <add-to-group group-id="EditorPopupMenu" relative-to-action="CompareClipboardWithSelection"
+                          anchor="before"/>
+            <add-to-group group-id="ToolsMenu" relative-to-action="Forward" anchor="after"/>
+            <separator/>
+            <action id="SessionManager.Save" class="io.github.palexdev.sessionmanager.actions.SaveAction"
+                    text="Save the Current Session" description="Saves the current session" icon="/icons/save.svg"/>
+            <action id="SessionManager.Restore" class="io.github.palexdev.sessionmanager.actions.RestoreAction"
+                    text="Restore a Session" description="Restores a previously saved session"
+                    icon="/icons/restore.svg"/>
+            <action id="SessionManager.LoadFile" class="io.github.palexdev.sessionmanager.actions.LoadFileAction"
+                    text="Load Sessions From File"
+                    description="Loads previously saved sessions from a compatible json file"
+                    icon="/icons/fileLoad.svg"/>
+            <separator/>
+        </group>
+    </actions>
+</idea-plugin>
