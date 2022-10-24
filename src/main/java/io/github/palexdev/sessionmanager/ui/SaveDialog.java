@@ -51,6 +51,7 @@ public class SaveDialog extends BaseDialog<SessionInfo> {
 
 		descArea = new TextArea();
 		descArea.setPromptText("<Optional>");
+		descArea.setWrapText(true);
 
 		Button dirButton = new Button("Choose");
 		dirButton.setOnAction(e -> {

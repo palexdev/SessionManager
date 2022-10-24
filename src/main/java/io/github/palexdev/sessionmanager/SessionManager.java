@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -140,15 +141,14 @@ public final class SessionManager implements Disposable {
 
 	private void openSession(Session session) {
 		Set<String> files = session.getFiles();
-		FileEditorManager fem = FileEditorManager.getInstance(project);
 		VirtualFile vffFile = null;
 		for (String file : files) {
 			VirtualFile vf = LocalFileSystem.getInstance().findFileByPath(PathUtils.getProjectPath(project) + "/" + file);
 			if (vf == null) continue;
 			if (session.isFocused(file)) vffFile = vf;
-			fem.openFile(vf, false);
+			openFile(vf, true);
 		}
-		if (vffFile != null) fem.openFile(vffFile, true);
+		if (vffFile != null) openFile(vffFile, true);
 	}
 
 	private String getFocusedFile() {
@@ -159,6 +159,10 @@ public final class SessionManager implements Disposable {
 				.map(s -> PathUtils.normalizeFileName(project, s))
 				.filter(s -> !s.isBlank())
 				.orElse(""));
+	}
+
+	private void openFile(VirtualFile file, boolean focus) {
+		new OpenFileDescriptor(project, file).navigate(focus);
 	}
 
 	//================================================================================

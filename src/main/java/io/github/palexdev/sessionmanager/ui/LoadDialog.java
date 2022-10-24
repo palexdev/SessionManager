@@ -5,10 +5,7 @@ import io.github.palexdev.sessionmanager.utils.SessionStringConverter;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -42,6 +39,12 @@ public class LoadDialog extends BaseDialog<Session> {
 		sCombo.setConverter(SessionStringConverter.instance());
 		sCombo.setMaxWidth(Double.MAX_VALUE);
 
+		TextArea descArea = new TextArea();
+		descArea.setPromptText("<Description>");
+		descArea.setEditable(false);
+		descArea.setWrapText(true);
+		sCombo.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> descArea.setText(n.getDescription()));
+
 		Button okButton = new Button("OK");
 		okButton.setOnAction(e -> {
 			Session selSession = sCombo.getSelectionModel().getSelectedItem();
@@ -64,7 +67,7 @@ public class LoadDialog extends BaseDialog<Session> {
 		aBox.setAlignment(Pos.BOTTOM_RIGHT);
 		VBox.setVgrow(aBox, Priority.ALWAYS);
 
-		VBox root = new VBox(15, label, sCombo, aBox);
+		VBox root = new VBox(15, label, sCombo, descArea, aBox);
 		root.setPadding(new Insets(10));
 		root.setMinSize(400, 150);
 
