@@ -1,0 +1,19 @@
+.list-view {
+	-fx-background-color: transparent;
+}
+
+.list-view .list-cell {
+	-fx-background-color: transparent;
+}
+
+.list-view .list-cell > .label {
+	-fx-font-family: "Roboto";
+	-fx-font-weight: 400;
+	-fx-font-size: 14px;
+	-fx-text-fill: -md-sys-color-on-surface;
+}
+
+.list-view .list-cell > .surface > .bg {
+	-fx-background-color: -md-sys-color-primary;
+	-fx-background-insets: -1;
+}

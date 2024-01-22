@@ -1,0 +1,39 @@
+.table-view {
+	-fx-background-color: transparent;
+	-fx-clip-border-radius: 20px;
+}
+
+.table-view .columns-container {
+	-fx-border-color: transparent transparent -md-sys-color-outline-variant transparent;
+}
+
+.table-view .columns-container > .table-column {
+	-fx-border-color: transparent -md-sys-color-outline-variant transparent transparent;
+	-fx-border-insets: 0px 1px 0px 0px;
+
+	-fx-font-family: "Roboto";
+	-fx-font-weight: 400;
+	-fx-font-size: 14px;
+	-fx-text-fill: -md-sys-color-on-surface;
+	-fx-padding: 0px 0px 0px 8px;
+}
+
+.table-view .rows-container > .table-row {
+	-fx-padding: 0px 0px 0px 8px;
+}
+
+.table-view .rows-container > .table-row > .surface > .bg {
+	-fx-background-color: -md-sys-color-primary;
+	-fx-background-insets: -1;
+}
+
+.table-view .table-cell {
+	-fx-background-color: transparent;
+}
+
+.table-view .table-cell > .label {
+	-fx-font-family: "Roboto";
+	-fx-font-weight: 400;
+	-fx-font-size: 14px;
+	-fx-text-fill: -md-sys-color-on-surface;
+}

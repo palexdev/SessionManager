@@ -10,43 +10,10 @@
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor email="alessandro.parisi406@gmail.com"/>
 
-    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
-         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
-    <description><![CDATA[
-    A simple plugin that allows to save the current session of the IDE. Open files
-    will be stored by default in the .idea folder or in one of the fallback directories if that was not available
-    (can be either project directory or user.home directory), or in any other directory of your choice.
-    The saved JSON file is then used to restore the saved sessions at any time on any machine (given certain conditions
-    further explained below).
-
-    The plugin is very easy to use. Three new options are added in two places: in the Tools menu and in the Tabs
-    context menu. All of them have icons to easily distinguish them among the other options.
-
-    - Save Session: this option allows you to save all the currently open tabs to a JSON file named "session-manager.json",
-    this name is hard-coded and the plugin will always check for this file in the default directories when first initialized.
-    The Session has three parameters: the name, the path and the description. The latter ones are optional. When no path
-    is specified the plugin will automatically use one of the default directories (.idea, project directory, user.home).
-    As a programmer, I suggest you to use the description wisely. I decided to add it because often I end up forgetting
-    where I was and what I was doing, especially if I don't work on the project for some time.
-    Last but not least, the plugin also saves the focused tab.
-    - Load Session: the plugin has a Map in which sessions are stored. This option allows you to re-load one of those
-    sessions previously saved.
-    There are two really important things to consider here:
-    1) the save action has no limit over the tabs it can record, BUT, the load action will "fail" to load them all if
-    the IDE settings do not allow it, before restoring a big session make sure that
-    the Editor->General->Editor Tabs->Tabs Limit setting is big enough.
-    2) the save action allows you to record any open file, BUT, the intention of this plugin is to help you easily
-    save/re-load project files. This means that files that which are external to the project will fail to open.
-    - Load Session From File: this action allows you to load any "session-manager.json" file into the plugin. Note that
-    this action will not remove any other session already available, however since Sessions are stored like this
-    Name->Session, Sessions with the same name will be overwritten!
-  ]]></description>
-
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.javafx</depends>
+    <!--depends>com.intellij.javafx</depends-->
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
@@ -62,8 +29,9 @@
             <separator/>
             <action id="SessionManager.Save" class="io.github.palexdev.sessionmanager.actions.SaveAction"
                     text="Save the Current Session" description="Saves the current session" icon="/icons/save.svg"/>
-            <action id="SessionManager.Restore" class="io.github.palexdev.sessionmanager.actions.RestoreAction"
-                    text="Restore a Session" description="Restores a previously saved session"
+            <action id="SessionManager.Restore" class="io.github.palexdev.sessionmanager.actions.ViewSessionsAction"
+                    text="Show Saved Sessions"
+                    description="Shows all saved sessions and allows to perform operations on them"
                     icon="/icons/restore.svg"/>
             <action id="SessionManager.LoadFile" class="io.github.palexdev.sessionmanager.actions.LoadFileAction"
                     text="Load Sessions From File"
@@ -72,4 +40,8 @@
             <separator/>
         </group>
     </actions>
+    <projectListeners>
+        <listener class="io.github.palexdev.sessionmanager.listeners.ProjectListener"
+                  topic="com.intellij.openapi.project.ProjectCloseListener"/>
+    </projectListeners>
 </idea-plugin>

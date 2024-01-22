@@ -1,67 +1,65 @@
 package io.github.palexdev.sessionmanager.ui;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import io.github.palexdev.mfxcomponents.controls.buttons.MFXButton;
+import io.github.palexdev.mfxcore.controls.Label;
+import javafx.geometry.HPos;
+import javafx.scene.layout.GridPane;
 
 public class BooleanDialog extends BaseDialog<Boolean> {
 	//================================================================================
 	// Properties
 	//================================================================================
-	private final String title;
+	private final String action;
 	private final String text;
+
+	private Label description;
+	private MFXButton okBtn;
 
 	//================================================================================
 	// Constructors
 	//================================================================================
-	public BooleanDialog(String title, String text) {
-		this.title = title;
+	public BooleanDialog(String title, String action, String text) {
+		super(title);
+		this.action = action;
 		this.text = text;
-		init();
+		content.getStyleClass().add("boolean");
 	}
 
 	//================================================================================
-	// Methods
+	// Overridden Methods
 	//================================================================================
 	@Override
-	protected void init() {
-		dialog.setTitle(title);
+	protected void build() {
+		super.build();
 
-		Label label = new Label(text);
-		label.setMaxWidth(Double.MAX_VALUE);
-		label.setWrapText(true);
+		description = new Label(text);
+		description.setMaxWidth(Double.MAX_VALUE);
+		description.setWrapText(true);
+		description.getStyleClass().add("content");
+		content.addRow(1, description);
 
-		Button okButton = new Button("OK");
-		okButton.setOnAction(e -> {
+		okBtn = new MFXButton().text();
+		okBtn.setOnAction(e -> {
 			ref.set(true);
-			DialogUtils.forceClose(dialog);
+			hide();
 		});
-
-		Button cancelButton = new Button("Cancel");
-		cancelButton.setOnAction(e -> {
+		content.add(okBtn, 1, 2);
+		GridPane.setHalignment(okBtn, HPos.RIGHT);
+		GridPane.setMargin(okBtn, ACTIONS_MARGIN);
+		MFXButton cancelBtn = new MFXButton("Cancel").text();
+		cancelBtn.setOnAction(e -> {
 			ref.set(false);
-			DialogUtils.forceClose(dialog);
+			hide();
 		});
+		content.add(cancelBtn, 2, 2);
+		GridPane.setHalignment(cancelBtn, HPos.RIGHT);
+		GridPane.setMargin(cancelBtn, ACTIONS_MARGIN);
+	}
 
-		HBox aBox = new HBox(10, okButton, cancelButton);
-		aBox.setAlignment(Pos.BOTTOM_RIGHT);
-		VBox.setVgrow(aBox, Priority.ALWAYS);
-
-		VBox root = new VBox(10, label, aBox);
-		root.setPadding(new Insets(10));
-		root.setMinSize(400, 150);
-
-		DialogPane dp = new DialogPane();
-		dp.setContent(root);
-		dialog.setDialogPane(dp);
-
-		DialogUtils.removeButtonBar(dialog);
-		DialogUtils.setAlwaysOnTop(dialog);
-		DialogUtils.enableCloseWorkaround(dialog);
+	@Override
+	public Boolean showAndWait() {
+		description.setText(text);
+		okBtn.setText(action);
+		return super.showAndWait();
 	}
 }

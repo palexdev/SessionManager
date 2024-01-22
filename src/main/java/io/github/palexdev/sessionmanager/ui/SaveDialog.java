@@ -1,17 +1,22 @@
 package io.github.palexdev.sessionmanager.ui;
 
 import com.intellij.openapi.project.Project;
+import io.github.palexdev.mfxcomponents.controls.buttons.MFXButton;
+import io.github.palexdev.mfxcomponents.controls.buttons.MFXIconButton;
+import io.github.palexdev.mfxcomponents.theming.enums.PseudoClasses;
+import io.github.palexdev.mfxcore.observables.When;
+import io.github.palexdev.mfxresources.fonts.MFXFontIcon;
+import io.github.palexdev.mfxresources.fonts.fontawesome.FontAwesomeSolid;
 import io.github.palexdev.sessionmanager.model.SessionInfo;
+import io.github.palexdev.sessionmanager.ui.components.FloatingField;
+import io.github.palexdev.sessionmanager.ui.components.TextArea;
 import io.github.palexdev.sessionmanager.utils.PathUtils;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
+import javafx.collections.SetChangeListener;
+import javafx.css.PseudoClass;
+import javafx.geometry.HPos;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 
 import java.io.File;
@@ -22,8 +27,8 @@ public class SaveDialog extends BaseDialog<SessionInfo> {
 	// Properties
 	//================================================================================
 	private final Project project;
-	private TextField nameField;
-	private TextField pathField;
+	private FloatingField nameField;
+	private FloatingField pathField;
 	private TextArea descArea;
 
 	//================================================================================
@@ -31,78 +36,87 @@ public class SaveDialog extends BaseDialog<SessionInfo> {
 	//================================================================================
 
 	public SaveDialog(Project project) {
+		super("Save Session");
 		this.project = project;
-		init();
 	}
 
+	//================================================================================
+	// Overridden Methods
+	//================================================================================
+	@Override
+	protected void build() {
+		super.build();
+
+		ColumnConstraints cc0 = cConstraint(Priority.SOMETIMES, HPos.LEFT);
+		ColumnConstraints cc1 = cConstraint(Priority.NEVER, HPos.CENTER);
+		ColumnConstraints cc2 = cConstraint(Priority.NEVER, HPos.LEFT);
+		content.getColumnConstraints().setAll(cc0, cc1, cc2);
+
+		Path path = PathUtils.getStoragePath(project);
+		nameField = new FloatingField("", "Name");
+		nameField.setMaxWidth(Double.MAX_VALUE);
+		When.onInvalidated(nameField.focusWithinProperty())
+				.condition(v -> !v)
+				.then(v -> {
+					boolean valid = isNameValid(nameField.field().getText());
+					PseudoClasses.ERROR.setOn(nameField, !valid);
+				})
+				.listen();
+		When.onInvalidated(nameField.field().textProperty())
+				.then(t -> PseudoClasses.ERROR.setOn(nameField, !isNameValid(t)))
+				.listen();
+		content.add(nameField, 0, 1);
+
+		pathField = new FloatingField(path.toString(), "Path");
+		pathField.setEditable(false);
+		pathField.setMaxWidth(Double.MAX_VALUE);
+		content.add(pathField, 0, 2);
+		MFXIconButton dirBtn = new MFXIconButton(new MFXFontIcon(FontAwesomeSolid.FOLDER_OPEN));
+		dirBtn.setOnAction(e -> selectPath());
+		content.add(dirBtn, 1, 2);
+
+		descArea = new TextArea("", "Description");
+		content.add(descArea, 0, 3);
+
+		MFXButton saveBtn = new MFXButton("Save").text();
+		saveBtn.setOnAction(e -> save());
+		content.add(saveBtn, 0, 4);
+		GridPane.setHalignment(saveBtn, HPos.RIGHT);
+		GridPane.setMargin(saveBtn, ACTIONS_MARGIN);
+		MFXButton cancelBtn = new MFXButton("Cancel").text();
+		cancelBtn.setOnAction(e -> hide());
+		content.add(cancelBtn, 1, 4);
+		GridPane.setColumnSpan(cancelBtn, GridPane.REMAINING);
+		GridPane.setMargin(cancelBtn, ACTIONS_MARGIN);
+
+		nameField.getPseudoClassStates().addListener((SetChangeListener<? super PseudoClass>) l ->
+				saveBtn.setDisable(PseudoClasses.ERROR.isActiveOn(nameField) || nameField.field().getText().isBlank())
+		);
+	}
 
 	//================================================================================
 	// Methods
 	//================================================================================
-	protected void init() {
-		dialog.setTitle("Save Session");
-		Path path = PathUtils.getStoragePath(project);
+	private void selectPath() {
+		Path defPath = PathUtils.getStoragePath(project);
+		DirectoryChooser dc = new DirectoryChooser();
+		dc.setTitle("Save session to directory...");
+		dc.setInitialDirectory(defPath.toFile());
 
-		nameField = new TextField();
-		nameField.setPromptText("<Required>");
+		File f = dc.showDialog(window);
+		if (f == null) return;
+		pathField.field().setText(f.getAbsolutePath());
+	}
 
-		pathField = new TextField();
-		pathField.setPromptText("<Default Path>");
+	private void save() {
+		String pathTxt = pathField.field().getText();
+		if (!PathUtils.isValidDir(Path.of(pathTxt))) {
+			DialogUtils.showGeneric("Error saving session", "Invalid save path: " + pathTxt);
+			return;
+		}
 
-		descArea = new TextArea();
-		descArea.setPromptText("<Optional>");
-		descArea.setWrapText(true);
-
-		Button dirButton = new Button("Choose");
-		dirButton.setOnAction(e -> {
-			DirectoryChooser chooser = new DirectoryChooser();
-			chooser.setInitialDirectory(path.toFile());
-			chooser.setTitle("Save session to directory...");
-			File file = chooser.showDialog(null);
-			pathField.setText(file.toString());
-		});
-
-		Button okButton = new Button("OK");
-		okButton.setOnAction(e -> {
-			String name = nameField.getText();
-			if (!isNameValid(name)) {
-				DialogUtils.showGeneric("Error saving session", "Invalid file name: " + name);
-				return;
-			}
-
-			String pathTxt = pathField.getText();
-			if (pathTxt.trim().isBlank()) pathTxt = path.toString();
-			if (!PathUtils.isValidDir(Path.of(pathTxt))) {
-				DialogUtils.showGeneric("Error saving session", "Invalid save path: " + pathTxt);
-				return;
-			}
-
-			ref.set(SessionInfo.of(name, pathTxt, descArea.getText()));
-			DialogUtils.forceClose(dialog);
-		});
-
-		Button cancelButton = new Button("Cancel");
-		cancelButton.setOnAction(e -> {
-			ref.set(null);
-			DialogUtils.forceClose(dialog);
-		});
-
-		HBox pathBox = new HBox(10, pathField, dirButton);
-		HBox.setHgrow(pathField, Priority.ALWAYS);
-
-		HBox aBox = new HBox(10, okButton, cancelButton);
-		aBox.setAlignment(Pos.BOTTOM_RIGHT);
-
-		VBox root = new VBox(15, nameField, pathBox, descArea, aBox);
-		root.setPadding(new Insets(10));
-		root.setMinSize(400, 200);
-
-		DialogPane dp = new DialogPane();
-		dp.setContent(root);
-		dialog.setDialogPane(dp);
-		DialogUtils.setAlwaysOnTop(dialog);
-		DialogUtils.enableCloseWorkaround(dialog);
-		DialogUtils.removeButtonBar(dialog);
+		ref.set(SessionInfo.of(nameField.field().getText(), pathTxt, descArea.getText()));
+		hide();
 	}
 
 	private boolean isNameValid(String name) {
@@ -110,5 +124,9 @@ public class SaveDialog extends BaseDialog<SessionInfo> {
 		boolean contains = trimmed.matches(".*[#%&{}\\/<>*?$!'\":;@+`|=].*");
 		boolean starts = trimmed.matches("^[ ,-]");
 		return !name.isBlank() && !contains && !starts;
+	}
+
+	private ColumnConstraints cConstraint(Priority priority, HPos hPos) {
+		return new ColumnConstraints(-1, -1, -1, priority, hPos, true);
 	}
 }

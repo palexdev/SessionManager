@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class RestoreAction extends AnAction {
-	private final Logger logger = Logger.getLogger(RestoreAction.class.getName());
+public class ViewSessionsAction extends AnAction {
+	private final Logger logger = Logger.getLogger(ViewSessionsAction.class.getName());
 
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e) {

@@ -1,0 +1,148 @@
+/* Base */
+.base-dialog {
+	-fx-background-color: -md-sys-color-surface-container-high;
+	-fx-background-radius: 28px;
+	-fx-border-color: -md-sys-color-outline;
+	-fx-border-radius: 28px;
+	-fx-min-width: 280px;
+	-fx-padding: 28px;
+	-fx-hgap: 8px;
+	-fx-vgap: 16px;
+}
+
+.base-dialog > .title {
+	-fx-font-family: "Roboto";
+	-fx-font-weight: 400;
+	-fx-font-size: 22px;
+	-fx-text-fill: -md-sys-color-on-surface;
+}
+
+.base-dialog > .mfx-icon-button,
+.base-dialog > .mfx-icon-button > .surface > .bg {
+	-fx-background-radius: 10px;
+}
+
+/* Scroll Panes */
+.base-dialog .virtual-scroll-pane {
+	-fx-border-color: -md-sys-color-outline-variant;
+	-fx-border-radius: 10px;
+	-fx-layout-mode: COMPACT;
+	-fx-smooth-scroll: true;
+	-fx-track-smooth-scroll: true;
+}
+
+.base-dialog .virtual-scroll-pane:compact {
+	-fx-vbar-padding: 10px 7px 14px 0px;
+	-fx-hbar-padding: 0px 14px 7px 10px;
+}
+
+.base-dialog .mfx-scroll-bar {
+	-background: rgba(230, 230, 230, 1.0);
+	-border: rgba(223, 223, 223, 1.0);
+	-thumb: rgba(115, 115, 115, 1.0);
+	-thumb-hop: rgba(99, 99, 99, 1.0);
+
+	-fx-background-color: -md-sys-color-surface-container-highest;
+	-fx-background-radius: 5px;
+	-fx-padding: 1px 0px 1px 0px;
+}
+
+.base-dialog .mfx-scroll-bar .thumb {
+	-fx-background-color: -md-sys-color-primary;
+	-fx-background-radius: 7px;
+	-fx-pref-width: 7px;
+	-fx-pref-height: 7px;
+	-fx-opacity: 0.7;
+}
+
+.base-dialog .mfx-scroll-bar .thumb:hover,
+.base-dialog .mfx-scroll-bar .thumb:pressed {
+	-fx-opacity: 1.0;
+}
+
+.base-dialog .mfx-scroll-bar .mfx-icon-wrapper {
+	-fx-background-color: -md-sys-color-primary;
+	-fx-background-radius: 5px;
+	-mfx-size: 14px;
+	-fx-opacity: 0.7;
+}
+
+.base-dialog .mfx-scroll-bar .mfx-icon-wrapper:hover,
+.base-dialog .mfx-scroll-bar .mfx-icon-wrapper:pressed,
+.base-dialog .mfx-scroll-bar .mfx-icon-wrapper:focused {
+	-fx-opacity: 1.0;
+}
+
+.base-dialog .mfx-scroll-bar .mfx-icon-wrapper .mfx-font-icon {
+	-mfx-color: -md-sys-color-on-primary;
+	-mfx-size: 13px;
+}
+
+.base-dialog .mfx-scroll-bar:vertical .decrement-icon .mfx-font-icon {
+	-mfx-description: "fas-caret-up";
+}
+
+.base-dialog .mfx-scroll-bar:vertical .increment-icon .mfx-font-icon {
+	-mfx-description: "fas-caret-down";
+}
+
+.base-dialog .mfx-scroll-bar:horizontal .decrement-icon .mfx-font-icon {
+	-mfx-description: "fas-caret-left";
+}
+
+.base-dialog .mfx-scroll-bar:horizontal .increment-icon .mfx-font-icon {
+	-mfx-description: "fas-caret-right";
+}
+
+/* Generic */
+.base-dialog.generic > .content {
+	-fx-font-family: "Roboto";
+	-fx-font-weight: 400;
+	-fx-font-size: 12px;
+	-fx-text-fill: -md-sys-color-on-surface;
+}
+
+/* Boolean */
+.base-dialog.boolean > .content {
+	-fx-font-family: "Roboto";
+	-fx-font-weight: 400;
+	-fx-font-size: 12px;
+	-fx-text-fill: -md-sys-color-on-surface;
+}
+
+/* Load */
+.base-dialog.load {
+	-fx-min-width: 420px;
+	-fx-min-height: 400px;
+}
+
+.base-dialog.load > .details {
+	-fx-background-color: -md-sys-color-surface-container-high;
+	-fx-hgap: 10px;
+	-fx-vgap: 10px;
+}
+
+.base-dialog.load > .details > .text-area {
+	-fx-border-color: -md-sys-color-outline-variant;
+	-fx-border-width: 1px;
+	-fx-border-insets: 0px;
+}
+
+.base-dialog.load > .back {
+	-mfx-size: 18px;
+}
+
+.base-dialog.load > .back .mfx-icon-wrapper {
+	-mfx-aniamted: true;
+	-mfx-animation-preset: FADE;
+	-fx-opacity: 100%;
+}
+
+.base-dialog.load > .back .mfx-icon-wrapper:disabled {
+	-fx-opacity: 38%;
+}
+
+.base-dialog.load > .back .mfx-font-icon {
+	-mfx-size: 18px;
+	-fx-opacity: 100%;
+}

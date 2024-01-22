@@ -1,5 +1,6 @@
 package io.github.palexdev.sessionmanager;
 
+import com.intellij.ide.ui.LafManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.components.Service;
@@ -14,6 +15,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ModalityUiUtil;
 import com.intellij.util.ui.UIUtil;
 import com.sun.javafx.application.PlatformImpl;
+import io.github.palexdev.mfxcomponents.theming.MaterialThemes;
+import io.github.palexdev.mfxcomponents.theming.UserAgentBuilder;
+import io.github.palexdev.mfxcore.utils.fx.CSSFragment;
 import io.github.palexdev.sessionmanager.model.Session;
 import io.github.palexdev.sessionmanager.model.SessionInfo;
 import io.github.palexdev.sessionmanager.ui.DialogUtils;
@@ -23,17 +27,23 @@ import javafx.application.Platform;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Service
+@Service(Service.Level.PROJECT)
 public final class SessionManager implements Disposable {
 	//================================================================================
 	// Properties
 	//================================================================================
 	private final Logger logger = Logger.getLogger(SessionManager.class.getName());
+	public static final DateTimeFormatter DTF = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
 
 	private final Project project;
 	private final Map<String, Session> sessions;
@@ -43,9 +53,18 @@ public final class SessionManager implements Disposable {
 	//================================================================================
 	public SessionManager(Project project) {
 		this.project = project;
+		boolean dark = LafManager.getInstance().getCurrentUIThemeLookAndFeel().isDark();
+		CSSFragment theme = UserAgentBuilder.builder()
+				.setDeploy(true)
+				.setResolveAssets(true)
+				//.themes(JavaFXThemes.MODENA)
+				.themes(dark ? MaterialThemes.INDIGO_DARK : MaterialThemes.INDIGO_LIGHT)
+				.build();
+
+
 		Platform.setImplicitExit(false);
-		PlatformImpl.startup(() -> {
-		});
+		PlatformImpl.startup(() -> PlatformImpl.setPlatformUserAgentStylesheet(theme.toDataUri()));
+		theme.setGlobal();
 
 		List<Session> prevSaved = StorageUtils.locateAndLoadSessions(project);
 		sessions = prevSaved.stream()
@@ -53,6 +72,17 @@ public final class SessionManager implements Disposable {
 						Session::getName,
 						s -> s
 				));
+	}
+
+	//================================================================================
+	// Res Management
+	//================================================================================
+	public static String loadResource(String name) {
+		return SessionManager.class.getResource(name).toExternalForm();
+	}
+
+	public static String getCss(String name) {
+		return loadResource("css/" + name);
 	}
 
 	//================================================================================
@@ -66,7 +96,6 @@ public final class SessionManager implements Disposable {
 				return;
 			}
 			Session session = sessionInfo.toSession();
-
 			FileDocumentManager fdm = FileDocumentManager.getInstance();
 			Editor[] editors = EditorFactory.getInstance().getAllEditors();
 			List<String> openFiles = Arrays.stream(editors)
@@ -79,7 +108,7 @@ public final class SessionManager implements Disposable {
 					.collect(Collectors.toList());
 
 			if (sessions.containsKey(session.getName()) && !DialogUtils.booleanDialog(
-					"Saving session...", "A session with the given name already exists, overwrite?")) {
+					"Saving session...", "Overwrite", "A session with the given name already exists, overwrite?")) {
 				logger.log(Level.INFO, "Session was not overwritten.");
 				return;
 			}
@@ -91,6 +120,31 @@ public final class SessionManager implements Disposable {
 		});
 	}
 
+	public void saveOnClose() {
+		LocalDateTime dt = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime();
+		SessionInfo sessionInfo = new SessionInfo(
+				"AutoSave",
+				PathUtils.getStoragePath(project).toString(),
+				"This session was auto-saved on %s".formatted(DTF.format(dt))
+		);
+		Session session = sessionInfo.toSession();
+		FileDocumentManager fdm = FileDocumentManager.getInstance();
+		Editor[] editors = EditorFactory.getInstance().getAllEditors();
+		List<String> openFiles = Arrays.stream(editors)
+				.map(e -> fdm.getFile(e.getDocument()))
+				.filter(Objects::nonNull)
+				.map(VirtualFile::getCanonicalPath)
+				.filter(Objects::nonNull)
+				.map(s -> PathUtils.normalizeFileName(project, s))
+				.filter(s -> !s.isBlank())
+				.collect(Collectors.toList());
+		if (openFiles.isEmpty()) return;
+		session.setFocusedFile(getFocusedFile());
+		session.addFiles(openFiles);
+		sessions.put(session.getName(), session);
+		StorageUtils.saveSessions(sessions.values(), sessionInfo.getPath());
+	}
+
 	public void loadSession() {
 		Platform.runLater(() -> {
 			if (sessions.isEmpty()) {
@@ -98,17 +152,31 @@ public final class SessionManager implements Disposable {
 				return;
 			}
 
-			Session session = DialogUtils.chooseSessionToLoad(sessions.values());
+			Session session = DialogUtils.viewSessions(this, sessions.values());
 			if (session == null) {
 				logger.log(Level.WARNING, "Session was not loaded as return value of load dialog was null");
 				return;
 			}
 
-			ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> {
+			ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), () -> {
 				closeSession();
 				openSession(session);
 			});
 		});
+	}
+
+	public void delete(Session session) {
+		if (session == null) return;
+		String sPath = session.getPath();
+		Path pPath = Path.of(sPath);
+		try {
+			List<Session> tmp = StorageUtils.loadSessions(pPath.resolve(StorageUtils.stgFileName));
+			tmp.remove(session);
+			StorageUtils.saveSessions(tmp, pPath);
+			sessions.remove(session.getName());
+		} catch (IOException ex) {
+			logger.log(Level.SEVERE, "Failed to delete session %s because: %s".formatted(session.getName(), ex.getMessage()));
+		}
 	}
 
 	public void loadFile() {

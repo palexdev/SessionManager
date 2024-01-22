@@ -40,6 +40,16 @@ public class StorageUtils {
 		}
 	}
 
+	public static void saveSessions(Collection<Session> sessions, Path path) throws IOException {
+		path = Path.of(path + "/" + stgFileName);
+		if (PathUtils.isValidFile(path)) {
+			String toJson = GsonInstance.toJson(sessions);
+			Files.writeString(path, toJson, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+		} else {
+			throw new IOException("Path: %s is not valid".formatted(path));
+		}
+	}
+
 	public static List<Session> locateAndLoadSessions(Project project) {
 		List<Session> defSessions = loadSessions(PathUtils.getDefaultPath(project));
 		if (!defSessions.isEmpty()) return defSessions;

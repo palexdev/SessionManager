@@ -1,9 +1,10 @@
 plugins {
     id "java"
     id "org.jetbrains.intellij" version "$intellijPlugin"
+    id 'org.openjfx.javafxplugin' version "0.1.0"
 }
 
-group = "io.goithub.palexdev"
+group = "io.github.palexdev"
 version = "$smVersion"
 
 sourceCompatibility = "$jdk"
@@ -11,10 +12,23 @@ targetCompatibility = "$jdk"
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
     implementation "com.google.code.gson:gson:$gson"
+    implementation "io.github.palexdev:materialfx-all:$mfx"
+
+    // Debug!
+/*    implementation("io.github.palexdev:scenicview:17.0.2") {
+        exclude group: 'org.openjfx'
+    }*/
+}
+
+javafx {
+    version = "21.0.1"
+    modules = ["javafx.controls", "javafx.fxml"]
+    configurations = ["implementation"]
 }
 
 sourceSets {
@@ -28,16 +42,17 @@ sourceSets {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2021.3.3")
+    version.set("2023.3.2")
     type.set("IC") // Target IDE Platform
 
-    plugins.set(List.of("com.intellij.javafx:1.0.4"))
+    //plugins.set(List.of("com.intellij.javafx:1.0.4"))
 }
 
 tasks {
     patchPluginXml {
-        sinceBuild.set("213")
-        untilBuild.set("223.*")
+        sinceBuild.set("233")
+        untilBuild.set("233.*")
+        pluginDescription.set(file("src/main/resources/META-INF/description.html").getText("UTF-8"))
     }
 
     signPlugin {

@@ -1,0 +1,48 @@
+<!-- @formatter:off -->
+A simple plugin that allows to save the current session of the IDE.
+<br/>
+Open files will be stored by default in the .idea folder or in one of the fallback directories if that was not available
+(can be either project directory or user.home directory), or in any other directory of your choice.
+The saved JSON file is then used to restore the saved sessions at any time on any machine (given certain conditions
+further explained below).
+<br />
+The plugin is very easy to use. Three new options are added in two places: in the Tools menu and in the Tabs
+context menu. All of them have icons to easily distinguish them among the other options.
+<br />
+<ol>
+    <li>
+        <b>Save Session</b>: this option allows you to save all the currently open tabs to a JSON file named `session-manager.json`,
+        this name is hard-coded, and the plugin will always check for this file in the default directories when first initialized.
+        The Session has four parameters: the name, the timestamp (in milliseconds), the description and the path. The latter ones are optional. When no path
+        is specified the plugin will automatically use one of the default directories (.idea, project directory, user.home).
+        As a developer, I suggest that you use the description wisely. I decided to add it because often I end up forgetting
+        where I was and what I was doing, especially if I don't work on the project for some time. The plugin also saves the focused tab,
+        so that when the session is restored, you will see the same tab opened before.
+        <br />
+        <b>Note on the save</b>: when the project or the IDE are closed, the plugin automatically saves the session with
+        the name `AutoSave` (overwritten automatically every time).
+    </li>
+    <li>
+        <b>Load Session</b>: the plugin has a Map in which sessions are stored. This option allows you to re-load one of those
+        sessions previously saved.
+        <br />
+        There are two really important things to consider here:
+        <ul>
+            <li>
+                The save action has no limit over the tabs it can record, BUT, the load action will "fail" to load them all if
+                the IDE settings do not allow it, before restoring a big session make sure that the <b>Editor->General->Editor Tabs->Tabs Limit</b> setting is big enough.
+            </li>
+            <li>
+                The save action allows you to record any open file, BUT, the intention of this plugin is to help you easily
+                save/re-load project files. This means that files that which are external to the project will fail to open.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <b>Load Session From File</b>: this action allows you to load any "session-manager.json" file into the plugin. Note that
+        this action will not remove any other session already available, however since Sessions are stored like this
+        Name->Session, Sessions with the same name will be overwritten!
+        For this reason, even though the plugin doesn't impose any limit, it is <b>highly recommended</b> to store sessions in
+        the .idea directory.
+    </li>
+</ol>

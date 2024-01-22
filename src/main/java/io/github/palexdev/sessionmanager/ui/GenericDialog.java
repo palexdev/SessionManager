@@ -1,58 +1,52 @@
 package io.github.palexdev.sessionmanager.ui;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import io.github.palexdev.mfxcomponents.controls.buttons.MFXButton;
+import io.github.palexdev.mfxcore.controls.Label;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Modality;
 
 public class GenericDialog extends BaseDialog<Void> {
 	//================================================================================
 	// Properties
 	//================================================================================
-	private final String title;
 	private final String text;
+
+	private Label description;
 
 	//================================================================================
 	// Constructors
 	//================================================================================
 	public GenericDialog(String title, String text) {
-		this.title = title;
+		super(title);
 		this.text = text;
-		init();
+
+		content.getStyleClass().add("generic");
+		window.initModality(Modality.APPLICATION_MODAL);
 	}
 
 	//================================================================================
-	// Methods
+	// Overridden Methods
 	//================================================================================
 	@Override
-	protected void init() {
-		dialog.setTitle(title);
+	protected void build() {
+		super.build();
 
-		Label label = new Label(text);
-		label.setMaxWidth(Double.MAX_VALUE);
-		label.setWrapText(true);
+		description = new Label();
+		description.setMaxWidth(Double.MAX_VALUE);
+		description.setWrapText(true);
+		description.getStyleClass().add("content");
+		content.addRow(1, description);
 
-		Button okButton = new Button("OK");
-		okButton.setOnAction(e -> DialogUtils.forceClose(dialog));
+		MFXButton okBtn = new MFXButton("OK").text();
+		okBtn.setOnAction(e -> hide());
+		content.add(okBtn, 1, 2);
+		GridPane.setColumnSpan(okBtn, GridPane.REMAINING);
+		GridPane.setMargin(okBtn, ACTIONS_MARGIN);
+	}
 
-		HBox aBox = new HBox(10, okButton);
-		aBox.setAlignment(Pos.BOTTOM_RIGHT);
-		VBox.setVgrow(aBox, Priority.ALWAYS);
-
-		VBox root = new VBox(10, label, aBox);
-		root.setPadding(new Insets(10));
-		root.setMinSize(400, 150);
-
-		DialogPane dp = new DialogPane();
-		dp.setContent(root);
-		dialog.setDialogPane(dp);
-
-		DialogUtils.removeButtonBar(dialog);
-		DialogUtils.setAlwaysOnTop(dialog);
-		DialogUtils.enableCloseWorkaround(dialog);
+	@Override
+	public Void showAndWait() {
+		description.setText(text);
+		return super.showAndWait();
 	}
 }

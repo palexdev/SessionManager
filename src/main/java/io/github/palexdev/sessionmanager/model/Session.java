@@ -12,8 +12,14 @@ public class Session {
 	@SerializedName("name")
 	private String name;
 
+	@SerializedName("timestamp")
+	private Long timestamp;
+
 	@SerializedName("desc")
 	private String description;
+
+	@SerializedName("path")
+	private String path;
 
 	@SerializedName("fFile")
 	private String focusedFile;
@@ -24,13 +30,15 @@ public class Session {
 	//================================================================================
 	// Constructors
 	//================================================================================
-	public Session(@NotNull String name, String description) {
+	public Session(@NotNull String name, Long timestamp, String description, String path) {
 		this.name = name;
+		this.timestamp = timestamp;
 		this.description = description;
+		this.path = path;
 	}
 
-	public static Session of(@NotNull String name, String description) {
-		return new Session(name, description);
+	public static Session of(@NotNull String name, Long timestamp, String description, String path) {
+		return new Session(name, timestamp, description, path);
 	}
 
 	//================================================================================
@@ -79,12 +87,28 @@ public class Session {
 		this.name = name;
 	}
 
+	public Long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Long timestamp) {
+		this.timestamp = timestamp;
+	}
+
 	public String getDescription() {
 		return description;
 	}
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 	public String getFocusedFile() {
