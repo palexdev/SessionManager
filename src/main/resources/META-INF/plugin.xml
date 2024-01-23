@@ -8,7 +8,7 @@
     <name>SessionManager</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="alessandro.parisi406@gmail.com"/>
+    <vendor email="alessandro.parisi406@gmail.com" url="https://github.com/palexdev">palexdev</vendor>
 
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
@@ -40,6 +40,10 @@
             <separator/>
         </group>
     </actions>
+    <applicationListeners>
+        <listener class="io.github.palexdev.sessionmanager.listeners.LafListener"
+                  topic="com.intellij.ide.ui.LafManagerListener"/>
+    </applicationListeners>
     <projectListeners>
         <listener class="io.github.palexdev.sessionmanager.listeners.ProjectListener"
                   topic="com.intellij.openapi.project.ProjectCloseListener"/>

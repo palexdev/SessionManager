@@ -18,22 +18,19 @@
 	-fx-padding: 0px 0px 0px 8px;
 }
 
-.table-view .rows-container > .table-row {
+.table-view .rows-container > .table-row > .table-cell {
+	-fx-background-color: transparent;
 	-fx-padding: 0px 0px 0px 8px;
+}
+
+.table-view .rows-container > .table-row > .table-cell > .label {
+	-fx-font-family: "Roboto";
+	-fx-font-weight: 400;
+	-fx-font-size: 14px;
+	-fx-text-fill: -md-sys-color-on-surface;
 }
 
 .table-view .rows-container > .table-row > .surface > .bg {
 	-fx-background-color: -md-sys-color-primary;
 	-fx-background-insets: -1;
-}
-
-.table-view .table-cell {
-	-fx-background-color: transparent;
-}
-
-.table-view .table-cell > .label {
-	-fx-font-family: "Roboto";
-	-fx-font-weight: 400;
-	-fx-font-size: 14px;
-	-fx-text-fill: -md-sys-color-on-surface;
 }

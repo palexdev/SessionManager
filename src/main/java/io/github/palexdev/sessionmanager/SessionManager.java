@@ -1,6 +1,5 @@
 package io.github.palexdev.sessionmanager;
 
-import com.intellij.ide.ui.LafManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.components.Service;
@@ -14,7 +13,6 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ModalityUiUtil;
 import com.intellij.util.ui.UIUtil;
-import com.sun.javafx.application.PlatformImpl;
 import io.github.palexdev.mfxcomponents.theming.MaterialThemes;
 import io.github.palexdev.mfxcomponents.theming.UserAgentBuilder;
 import io.github.palexdev.mfxcore.utils.fx.CSSFragment;
@@ -25,6 +23,7 @@ import io.github.palexdev.sessionmanager.utils.PathUtils;
 import io.github.palexdev.sessionmanager.utils.StorageUtils;
 import javafx.application.Platform;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -53,19 +52,8 @@ public final class SessionManager implements Disposable {
 	//================================================================================
 	public SessionManager(Project project) {
 		this.project = project;
-		boolean dark = LafManager.getInstance().getCurrentUIThemeLookAndFeel().isDark();
-		CSSFragment theme = UserAgentBuilder.builder()
-				.setDeploy(true)
-				.setResolveAssets(true)
-				//.themes(JavaFXThemes.MODENA)
-				.themes(dark ? MaterialThemes.INDIGO_DARK : MaterialThemes.INDIGO_LIGHT)
-				.build();
-
-
+		Platform.startup(SessionManager::updateTheme);
 		Platform.setImplicitExit(false);
-		PlatformImpl.startup(() -> PlatformImpl.setPlatformUserAgentStylesheet(theme.toDataUri()));
-		theme.setGlobal();
-
 		List<Session> prevSaved = StorageUtils.locateAndLoadSessions(project);
 		sessions = prevSaved.stream()
 				.collect(Collectors.toMap(
@@ -231,6 +219,21 @@ public final class SessionManager implements Disposable {
 
 	private void openFile(VirtualFile file, boolean focus) {
 		new OpenFileDescriptor(project, file).navigate(focus);
+	}
+
+	public static void updateTheme() {
+		boolean dark = isDarkMode();
+		CSSFragment theme = UserAgentBuilder.builder()
+				.setDeploy(true)
+				.setResolveAssets(true)
+				//.themes(JavaFXThemes.MODENA)
+				.themes(dark ? MaterialThemes.INDIGO_DARK : MaterialThemes.INDIGO_LIGHT)
+				.build();
+		theme.setGlobal();
+	}
+
+	private static boolean isDarkMode() {
+		return Boolean.parseBoolean(UIManager.getLookAndFeelDefaults().get("ui.theme.is.dark").toString());
 	}
 
 	//================================================================================
