@@ -11,6 +11,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.JBColor;
 import com.intellij.util.ModalityUiUtil;
 import com.intellij.util.ui.UIUtil;
 import io.github.palexdev.mfxcomponents.theming.MaterialThemes;
@@ -23,7 +24,6 @@ import io.github.palexdev.sessionmanager.utils.PathUtils;
 import io.github.palexdev.sessionmanager.utils.StorageUtils;
 import javafx.application.Platform;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -52,7 +52,6 @@ public final class SessionManager implements Disposable {
 	//================================================================================
 	public SessionManager(Project project) {
 		this.project = project;
-		Platform.startup(SessionManager::updateTheme);
 		Platform.setImplicitExit(false);
 		List<Session> prevSaved = StorageUtils.locateAndLoadSessions(project);
 		sessions = prevSaved.stream()
@@ -233,7 +232,7 @@ public final class SessionManager implements Disposable {
 	}
 
 	private static boolean isDarkMode() {
-		return Boolean.parseBoolean(UIManager.getLookAndFeelDefaults().get("ui.theme.is.dark").toString());
+		return !JBColor.isBright();
 	}
 
 	//================================================================================

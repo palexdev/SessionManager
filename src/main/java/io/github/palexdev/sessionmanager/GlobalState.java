@@ -1,6 +1,7 @@
 package io.github.palexdev.sessionmanager;
 
 import com.intellij.openapi.project.Project;
+import javafx.application.Platform;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +25,7 @@ public class GlobalState {
 	// Constructors
 	//================================================================================
 	private GlobalState() {
+		Platform.startup(SessionManager::updateTheme);
 	}
 
 	//================================================================================
